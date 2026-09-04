@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HHA — Healthy Homes Assessment</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HHA">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1e2d3d">
+<meta name="format-detection" content="telephone=no">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#ffffff; --navy-mid:#f3f4f6; --navy-light:#e5e7eb;
+  --teal:#2563eb; --teal-dim:#1d4ed8;
+  --amber:#d97706; --red:#c0392b; --red-dim:#a93226; --green:#16a34a;
+  --white:#111827; --grey-200:#374151; --grey-400:#6b7280; --grey-600:#9ca3af;
+  --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+  --sidebar-w:240px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:#f9fafb;color:var(--white);min-height:100vh;font-size:14px;}
+
+/* HEADER */
+header{background:#ACE5EE;border-bottom:2px solid #7ab8c4;padding:0 20px;display:flex;align-items:center;gap:16px;height:54px;position:sticky;top:0;z-index:200;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.hdr-badge{font-family:var(--mono);font-size:10px;color:#ffffff;background:#1e3a5c;border:1px solid #1e3a5c;padding:3px 8px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;font-weight:700;}
+.hdr-title{font-size:15px;font-weight:500;white-space:nowrap;color:#1e3a5c;}.hdr-title span{color:#1e3a5c;font-weight:700;}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.hdr-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(30,58,92,.25);background:rgba(255,255,255,.35);color:#1e3a5c;font-family:var(--sans);white-space:nowrap;transition:all .15s;}
+.hdr-btn:hover{background:rgba(255,255,255,.6);}
+.hdr-btn-report{background:#2563eb;color:#ffffff;border-color:#2563eb;font-weight:600;}
+.hdr-btn-report:hover{background:#1d4ed8;}
+.hdr-btn-export{background:#c00000;color:#fff;border-color:#c00000;font-weight:600;}.hdr-btn-export:hover{background:#a00000;}
+
+/* LAYOUT */
+.app-shell{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:calc(100vh - 54px);}
+aside{background:#f0f2f5;border-right:1px solid var(--navy-light);display:flex;flex-direction:column;overflow-y:auto;}
+.sidebar-label{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--grey-400);text-transform:uppercase;letter-spacing:.14em;padding:0 8px;margin-bottom:8px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:13px;color:#374151;transition:all .15s;position:relative;user-select:none;}
+.nav-item:hover{background:#e4e8ed;color:#111827;}
+.nav-item.active{background:#ffffff;color:#1e2d3d;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.08);padding-left:10px;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:#7ECFDB;border-radius:0 2px 2px 0;}
+.nav-icon{width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.6;}.nav-item.active .nav-icon{opacity:1;}
+.nav-count{margin-left:auto;font-family:var(--mono);font-size:10px;background:#e5e7eb;padding:1px 6px;border-radius:10px;color:#6b7280;}
+.nav-item.active .nav-count{background:rgba(30,45,61,.1);color:#1e2d3d;}
+.sidebar-divider{height:1px;background:var(--navy-light);margin:10px 14px;}
+.sidebar-footer{margin-top:auto;padding:14px;border-top:1px solid var(--navy-light);background:#e8eaee;}
+.inspector-avatar{width:30px;height:30px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;flex-shrink:0;}
+.inspector-info{display:flex;align-items:center;gap:8px;}
+.inspector-name{font-size:12px;font-weight:600;color:#111827;}
+.inspector-role{font-size:10px;color:#9ca3af;font-family:var(--mono);}
+
+/* MAIN */
+main{overflow-y:auto;background:#f9fafb;}
+.page-header{padding:22px 28px 18px;border-bottom:1px solid var(--navy-light);background:#ffffff;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.page-eyebrow{font-family:var(--mono);font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px;}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-.01em;color:#111827;}
+.page-subtitle{font-size:12px;color:#9ca3af;margin-top:3px;}
+.content{padding:22px 28px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:4px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:var(--sans);}
+.btn-primary{background:var(--teal);color:#ffffff;}.btn-primary:hover{background:var(--teal-dim);}
+.btn-secondary{background:#ffffff;color:#374151;border:1px solid #d1d5db;}.btn-secondary:hover{background:#f3f4f6;border-color:#9ca3af;color:#111827;}
+.btn-danger{background:transparent;color:var(--red);border:1px solid transparent;padding:5px 9px;font-size:12px;}.btn-danger:hover{background:rgba(192,57,43,.08);border-color:var(--red-dim);}
+.btn-sm{padding:4px 9px;font-size:12px;}
+
+/* META CARD */
+.meta-card{background:#ffffff;border:1px solid #d8dde4;border-radius:8px;padding:0;margin-bottom:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.meta-card-header{grid-column:1/-1;padding:12px 22px 11px;border-bottom:1px solid #cdd3db;background:#e2e7ed;border-radius:8px 8px 0 0;}
+.meta-card-header span{font-size:11px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:.1em;}
+.meta-card > div:not(.meta-card-header){padding:22px 22px 18px;}
+.meta-label{font-family:var(--mono);font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;font-weight:400;}
+.meta-value.editable{background:transparent;border:none;border-bottom:1px solid #d1d5db;border-radius:0;padding:2px 0;color:#111827;font-family:var(--sans);font-size:15px;font-weight:500;width:100%;outline:none;transition:border-color .15s;}
+.meta-value.editable:focus{border-color:var(--teal);border-bottom-width:2px;}
+
+/* PROPERTY PHOTO */
+.property-photo-box{width:100%;max-width:260px;height:170px;border:1.5px dashed #cbd5e1;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:12px;cursor:pointer;overflow:hidden;background:#f9fafb;text-align:center;padding:10px;transition:border-color .15s;}
+.property-photo-box:hover{border-color:var(--teal);}
+.property-photo-box img{width:100%;height:100%;object-fit:cover;}
+
+/* PRINCIPLES */
+.principle-card{background:#ffffff;border:1px solid #d8dde4;border-radius:8px;padding:14px 18px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.principle-card-title{font-size:13px;font-weight:700;color:#111827;}
+.principle-card-desc{font-size:11.5px;color:#6b7280;margin:2px 0 10px;line-height:1.4;}
+.hazard-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:#374151;}
+.hazard-item input{width:16px;height:16px;flex-shrink:0;accent-color:var(--teal);}
+
+/* TOGGLE */
+.toggle-group{display:flex;gap:6px;}
+.toggle-btn{padding:6px 14px;border-radius:4px;border:1px solid #d1d5db;background:#ffffff;color:#374151;font-size:12px;cursor:pointer;font-family:var(--sans);}
+.toggle-btn.active{background:var(--teal);color:#ffffff;border-color:var(--teal);}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+.form-label{font-family:var(--mono);font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;font-weight:600;}
+.form-control{background:#ffffff;border:1px solid #d1d5db;border-radius:4px;padding:8px 11px;color:#111827;font-family:var(--sans);font-size:13px;outline:none;transition:border-color .15s,box-shadow .15s;width:100%;}
+.form-control:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+.form-control::placeholder{color:#b0b7c3;}
+textarea.form-control{resize:vertical;min-height:56px;line-height:1.5;}
+select.form-control{cursor:pointer;}
+
+/* HAZARD CARD */
+.hazard-card{background:#ffffff;border:1px solid #d8dde4;border-radius:8px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.hazard-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.hazard-card-header .num{font-family:var(--mono);font-size:11px;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+.photo-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.photo-thumb{position:relative;width:72px;height:72px;border-radius:6px;overflow:hidden;border:1px solid var(--navy-light);}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;}
+.photo-thumb .del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;line-height:1;padding:0;cursor:pointer;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:10px;margin-bottom:20px;max-width:400px;}
+.stat-card{background:#ffffff;border:1px solid #d8dde4;border-radius:8px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stat-card-label{font-family:var(--mono);font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px;}
+.stat-card-value{font-size:22px;font-weight:700;color:#111827;line-height:1;}
+
+/* SECTION DIVIDER */
+.meta-section-divider{display:flex;align-items:center;gap:12px;margin:0 0 10px;}
+.meta-section-divider span{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;}
+.meta-section-divider::after{content:'';flex:1;height:2px;background:#e5e7eb;}
+
+/* EMPTY STATE */
+.empty-state{padding:36px;text-align:center;color:#9ca3af;background:#ffffff;border:1px solid #d8dde4;border-radius:8px;}
+.empty-state-icon{font-size:28px;margin-bottom:8px;opacity:.4;}
+.empty-state-text{font-size:13px;}
+
+/* INFO BANNER */
+.info-banner{display:flex;align-items:flex-start;gap:9px;background:rgba(37,99,235,.05);border:1px solid rgba(37,99,235,.18);border-radius:6px;padding:11px 14px;margin-bottom:14px;font-size:12px;color:#374151;line-height:1.5;}
+
+/* PHOTOS TAB GRID */
+.photos-tab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.photos-tab-item{background:#fff;border:1px solid #d8dde4;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.photos-tab-item img{width:100%;height:120px;object-fit:cover;display:block;}
+.photos-tab-item .meta{padding:6px 8px;font-size:11px;color:var(--grey-400);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;}
+.modal{background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;width:440px;max-width:96vw;box-shadow:0 16px 48px rgba(0,0,0,.18);}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid #e5e7eb;background:#f9fafb;border-radius:8px 8px 0 0;}
+.modal-title{font-size:16px;font-weight:700;color:#111827;}
+.modal-body{padding:22px;font-size:13px;color:#374151;line-height:1.5;}
+.modal-footer{padding:14px 22px;border-top:1px solid #e5e7eb;background:#f9fafb;border-radius:0 0 8px 8px;display:flex;gap:8px;justify-content:flex-end;}
+.hidden{display:none !important;}
+
+@media (max-width:768px){
+  :root{--sidebar-w:210px;}
+  .hdr-btn span{display:none;}
+  .hdr-btn{padding:8px 10px;min-width:38px;justify-content:center;}
+  .hdr-btn-report span{display:inline;}
+  .hdr-btn-report{padding:8px 12px;}
+  .form-grid{grid-template-columns:1fr;}
+  .content{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-badge">HHA</div>
+  <div class="hdr-title">Healthy Homes · <span>Environmental Assessment</span></div>
+  <div class="hdr-right">
+    <button class="hdr-btn" onclick="promptNewCase()">↺ <span>New</span></button>
+    <button class="hdr-btn hdr-btn-export" onclick="exportCase()">💾 <span>Export Case</span></button>
+    <button class="hdr-btn" onclick="document.getElementById('importInput').click()">📂 <span>Import Case</span></button>
+    <input type="file" id="importInput" accept="application/json" class="hidden" onchange="importCase(event)">
+    <button class="hdr-btn hdr-btn-report" id="printReportBtn" onclick="printReport()">📄 <span>Print Report</span></button>
+  </div>
+</header>
+
+<div class="app-shell">
+  <aside id="sidebar">
+    <div style="padding:14px 14px 6px">
+      <div class="sidebar-label">Case</div>
+      <div class="nav-item active" id="navAssessment" onclick="switchTab('assessment')">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7.5L8 2l6 5.5V14H10.5v-3.5h-5V14H2V7.5z"/></svg></span>
+        Assessment <span class="nav-count" id="cnt-hazards">0</span>
+      </div>
+      <div class="nav-item" id="navPhotos" onclick="switchTab('photos')">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="4.5" width="13" height="9" rx="1"/><circle cx="8" cy="9" r="2.5"/><path d="M5.5 4.5l1-2h3l1 2"/></svg></span>
+        Photos <span class="nav-count" id="cnt-photos">0</span>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-footer">
+      <div class="inspector-info">
+        <div class="inspector-avatar" id="avatar-initials">??</div>
+        <div><div class="inspector-name" id="sidebar-inspector">Environmental Specialist</div><div class="inspector-role">Healthy Homes</div></div>
+      </div>
+      <div style="text-align:right;font-size:10px;color:var(--grey-400);margin-top:6px;font-family:var(--mono);">HHA v6</div>
+    </div>
+  </aside>
+
+  <main id="main-content">
+
+    <div id="view-assessment">
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">Property Assessment</div>
+          <div class="page-title">Healthy Homes Environmental Assessment</div>
+          <div class="page-subtitle">City of Milwaukee Health Department — HUD Healthy Homes Principles</div>
+        </div>
+      </div>
+      <div class="content">
+
+        <div class="meta-card">
+          <div class="meta-card-header"><span>Property &amp; Visit Information</span></div>
+          <div><div class="meta-label">Date of Visit</div><input class="meta-value editable" id="f_dateOfVisit" type="date" onchange="updateHeaderField('dateOfVisit', this.value)"></div>
+          <div><div class="meta-label">Time of Visit</div><input class="meta-value editable" id="f_timeOfVisit" type="time" onchange="updateHeaderField('timeOfVisit', this.value)"></div>
+          <div><div class="meta-label">Year of Construction</div><input class="meta-value editable" id="f_yearBuilt" placeholder="e.g. 1932" oninput="updateHeaderField('yearBuilt', this.value)"></div>
+          <div style="grid-column:1/-1;"><div class="meta-label">Address</div><input class="meta-value editable" id="f_address" placeholder="123 Main St..." oninput="updateHeaderField('address', this.value)"></div>
+          <div><div class="meta-label">City</div><input class="meta-value editable" id="f_city" placeholder="City" oninput="updateHeaderField('city', this.value)"></div>
+          <div><div class="meta-label">State</div><input class="meta-value editable" id="f_state" placeholder="State" oninput="updateHeaderField('state', this.value)"></div>
+          <div><div class="meta-label">Zip Code</div><input class="meta-value editable" id="f_zip" placeholder="e.g. 53202" oninput="updateHeaderField('zip', this.value)"></div>
+        </div>
+
+        <div class="meta-card">
+          <div class="meta-card-header"><span>Inspector Information</span></div>
+          <div><div class="meta-label">Environmental Specialist</div><input class="meta-value editable" id="f_specialist" placeholder="Full name..." oninput="updateHeaderField('specialist', this.value)"></div>
+          <div><div class="meta-label">Lead Risk Assessor DHS No.</div><input class="meta-value editable" id="f_specialistDhs" placeholder="e.g. 261997" oninput="updateHeaderField('specialistDhs', this.value)"></div>
+        </div>
+
+        <div class="meta-card">
+          <div class="meta-card-header"><span>Owner Information</span></div>
+          <div><div class="meta-label">Owner Name</div><input class="meta-value editable" id="f_ownerName" placeholder="Owner name..." oninput="updateHeaderField('ownerName', this.value)"></div>
+          <div><div class="meta-label">Mailing Address</div><input class="meta-value editable" id="f_ownerAddress" placeholder="Mailing address..." oninput="updateHeaderField('ownerAddress', this.value)"></div>
+          <div><div class="meta-label">Phone</div><input class="meta-value editable" id="f_ownerPhone" placeholder="Phone number..." oninput="updateHeaderField('ownerPhone', this.value)"></div>
+        </div>
+
+        <div class="meta-section-divider"><span>Property Photo</span></div>
+        <div class="property-photo-box" id="propertyPhotoBox" onclick="triggerPropertyPhotoCapture()" style="margin-bottom:20px;">
+          <span id="propertyPhotoPlaceholder">Tap to add a property photo</span>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-card-label">Hazards Identified</div>
+            <div class="stat-card-value" id="totalCardCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Principles Flagged</div>
+            <div class="stat-card-value" id="totalPrincipleCount">0</div>
+          </div>
+        </div>
+
+        <div class="meta-section-divider"><span>Healthy Homes Principles — Check All That Apply</span></div>
+        <div id="principlesList"></div>
+
+        <div class="meta-card" style="display:block;padding:22px;">
+          <div class="meta-card-header" style="margin:-22px -22px 16px -22px;"><span>Radon Testing</span></div>
+          <div class="hazard-item" style="margin-bottom:12px;">
+            <input type="checkbox" id="radonTested" onchange="updateRadonField('tested', this.checked)">
+            <label for="radonTested" style="cursor:pointer;">Radon test performed at this property</label>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">Lab Result (pCi/L)</label><input class="form-control" id="radonLabResult" type="text" placeholder="e.g. 2.1" onchange="updateRadonField('labResult', this.value)"></div>
+            <div class="form-group"><label class="form-label">Result Date</label><input class="form-control" id="radonResultDate" type="date" onchange="updateRadonField('resultDate', this.value)"></div>
+          </div>
+        </div>
+
+        <div style="margin:24px 0 10px;">
+          <div class="meta-section-divider"><span>Hazard Details</span></div>
+          <div class="info-banner">Each card records one hazard: which principle it falls under, where it is, and the planned control option. Checking a box above creates a card automatically — you can still edit or add more manually.</div>
+        </div>
+        <div id="hazardCardsList"></div>
+        <button class="btn btn-secondary" onclick="addHazardCard()">＋ Add Hazard</button>
+
+      </div>
+    </div>
+
+    <div id="view-photos" class="hidden">
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">Case Media</div>
+          <div class="page-title">All Photos</div>
+          <div class="page-subtitle">Aggregated from every hazard card</div>
+        </div>
+      </div>
+      <div class="content">
+        <div id="photosTabGrid" class="photos-tab-grid"></div>
+        <div id="photosEmptyState" class="empty-state hidden">
+          <div class="empty-state-icon">📷</div>
+          <div class="empty-state-text">No photos yet. Add photos from within a hazard card on the Assessment tab.</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+
+<input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="handlePhotoCapture(event)">
+<input type="file" id="propertyPhotoInput" accept="image/*" capture="environment" class="hidden" onchange="handlePropertyPhotoCapture(event)">
+
+<script>
+const APP_VERSION = 'v6';
+
+// HUD's eight Healthy Homes Principles, with the exact sub-hazard breakdown confirmed
+// against both MHD's Healthy Homes Assessment Report template and the department's
+// radon/hazard tracking spreadsheet (the two agree with each other on this list).
+const HH_PRINCIPLES = [
+  { key:'dry', name:'Keep It Dry', description:'Prevent moisture intrusion, water damage, and mold growth.', subHazards:['Mold & moisture issues'] },
+  { key:'clean', name:'Keep It Clean', description:'Reduce exposure to dust, contaminants, pests, and allergens.', subHazards:[] },
+  { key:'pestfree', name:'Keep It Pest-Free', description:'Eliminate pest entry, nesting, and related health risks.', subHazards:['Pest control & prevention'] },
+  { key:'safe', name:'Keep It Safe', description:'Reduce the risk of injuries from falls, electrical hazards, and fire hazards.', subHazards:['CO & smoke detectors','Electrical hazards','Falls','Fire hazards','Safety from intruders'] },
+  { key:'ventilated', name:'Keep It Well-Ventilated', description:'Improve indoor air quality through proper airflow and exhaust.', subHazards:['Improper ventilation'] },
+  { key:'contaminantfree', name:'Keep It Contaminant-Free', description:'Reduce exposure to carbon monoxide, chemicals, and other pollutants.', subHazards:['Environmental tobacco smoke exposure','Radon mitigation system'] },
+  { key:'maintained', name:'Keep It Maintained', description:'Address damaged or deteriorated building components to prevent hazards.', subHazards:['Unsafe structure','Inadequate plumbing','Lead Based Paint'] },
+  { key:'temp', name:'Keep It Temperature-Controlled', description:'Maintain safe, comfortable, and energy-efficient indoor temperatures.', subHazards:['Temperature extremes'] }
+];
+
+function principleByKey(key){
+  return HH_PRINCIPLES.find(p => p.key === key);
+}
+
+function defaultState(){
+  return {
+    version: APP_VERSION,
+    header: {
+      dateOfVisit:'', timeOfVisit:'', specialist:'', specialistDhs:'',
+      address:'', city:'Milwaukee', state:'WI', zip:'', yearBuilt:'',
+      ownerName:'', ownerAddress:'', ownerPhone:'',
+      propertyPhoto: null
+    },
+    radon: { tested:false, labResult:'', resultDate:'' },
+    principles: {},
+    hazardCards: [],
+    nextCardId: 1,
+    nextPhotoId: 1
+  };
+}
+
+let state = defaultState();
+let currentTab = 'assessment';
+let pendingPhotoTargetCardId = null;
+
+// ---------- rendering ----------
+
+function render(){
+  document.getElementById('f_dateOfVisit').value = state.header.dateOfVisit;
+  document.getElementById('f_timeOfVisit').value = state.header.timeOfVisit;
+  document.getElementById('f_yearBuilt').value = state.header.yearBuilt;
+  document.getElementById('f_address').value = state.header.address;
+  document.getElementById('f_city').value = state.header.city;
+  document.getElementById('f_state').value = state.header.state;
+  document.getElementById('f_zip').value = state.header.zip;
+  document.getElementById('f_specialist').value = state.header.specialist;
+  document.getElementById('f_specialistDhs').value = state.header.specialistDhs;
+  document.getElementById('f_ownerName').value = state.header.ownerName;
+  document.getElementById('f_ownerAddress').value = state.header.ownerAddress;
+  document.getElementById('f_ownerPhone').value = state.header.ownerPhone;
+
+  document.getElementById('radonTested').checked = state.radon.tested;
+  document.getElementById('radonLabResult').value = state.radon.labResult;
+  document.getElementById('radonResultDate').value = state.radon.resultDate;
+
+  renderPropertyPhoto();
+  updateSidebarInspector();
+  renderPrinciplesList();
+  renderHazardCards();
+  renderPhotosTab();
+}
+
+function updateSidebarInspector(){
+  const name = state.header.specialist || '';
+  document.getElementById('sidebar-inspector').textContent = name || 'Environmental Specialist';
+  const initials = name.trim().split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0].toUpperCase()).join('') || '??';
+  document.getElementById('avatar-initials').textContent = initials;
+}
+
+function renderPropertyPhoto(){
+  const box = document.getElementById('propertyPhotoBox');
+  if(state.header.propertyPhoto){
+    box.innerHTML = `<img src="${state.header.propertyPhoto.dataUrl}">`;
+  } else {
+    box.innerHTML = '<span>Tap to add a property photo</span>';
+  }
+}
+
+function renderPrinciplesList(){
+  const list = document.getElementById('principlesList');
+  list.innerHTML = '';
+  let checkedCount = 0;
+  HH_PRINCIPLES.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'principle-card';
+    let itemsHtml = '';
+    if(p.subHazards.length === 0){
+      const key = p.key + '__general';
+      const checked = !!state.principles[key];
+      if(checked) checkedCount++;
+      itemsHtml = `<div class="hazard-item">
+        <input type="checkbox" id="hz_${key}" ${checked ? 'checked' : ''} onchange="togglePrinciple('${key}', this.checked)">
+        <label for="hz_${key}" style="cursor:pointer;">Flag a hazard under this principle</label>
+      </div>`;
+    } else {
+      itemsHtml = p.subHazards.map((label, idx) => {
+        const key = p.key + '__' + idx;
+        const checked = !!state.principles[key];
+        if(checked) checkedCount++;
+        return `<div class="hazard-item">
+          <input type="checkbox" id="hz_${key}" ${checked ? 'checked' : ''} onchange="togglePrinciple('${key}', this.checked)">
+          <label for="hz_${key}" style="cursor:pointer;">${label}</label>
+        </div>`;
+      }).join('');
+    }
+    div.innerHTML = `
+      <div class="principle-card-title">${p.name}</div>
+      <div class="principle-card-desc">${p.description}</div>
+      ${itemsHtml}
+    `;
+    list.appendChild(div);
+  });
+  document.getElementById('totalPrincipleCount').textContent = checkedCount;
+}
+
+function renderHazardCards(){
+  const list = document.getElementById('hazardCardsList');
+  document.getElementById('totalCardCount').textContent = state.hazardCards.length;
+  document.getElementById('cnt-hazards').textContent = state.hazardCards.length;
+  if(state.hazardCards.length === 0){
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">No hazard cards yet. Check a principle above, or click "Add Hazard" below.</div></div>';
+    return;
+  }
+  list.innerHTML = '';
+  state.hazardCards.forEach((card, i) => {
+    const div = document.createElement('div');
+    div.className = 'hazard-card';
+    let photoHtml = '';
+    card.photos.forEach(p => {
+      photoHtml += `<div class="photo-thumb"><img src="${p.dataUrl}"><button class="del" onclick="deletePhoto(${card.id}, ${p.id})">×</button></div>`;
+    });
+    const principleOptions = HH_PRINCIPLES.map(p => `<option value="${p.key}" ${card.principleKey === p.key ? 'selected' : ''}>${p.name}</option>`).join('');
+    div.innerHTML = `
+      <div class="hazard-card-header">
+        <span class="num">Hazard ${i + 1}</span>
+        <button class="btn-danger" onclick="deleteHazardCard(${card.id})">Delete</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Principle</label>
+          <select class="form-control" onchange="updateCardField(${card.id},'principleKey', this.value)">${principleOptions}</select>
+        </div>
+        <div class="form-group"><label class="form-label">Hazard Identified</label><input class="form-control" type="text" value="${escapeAttr(card.hazardLabel)}" onchange="updateCardField(${card.id},'hazardLabel', this.value)"></div>
+        <div class="form-group"><label class="form-label">Interior / Exterior</label>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn ${card.area === 'Interior' ? 'active' : ''}" onclick="updateCardField(${card.id},'area','Interior')">Interior</button>
+            <button type="button" class="toggle-btn ${card.area === 'Exterior' ? 'active' : ''}" onclick="updateCardField(${card.id},'area','Exterior')">Exterior</button>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Location(s)</label><input class="form-control" type="text" value="${escapeAttr(card.location)}" onchange="updateCardField(${card.id},'location', this.value)"></div>
+        <div class="form-group full"><label class="form-label">Control Option</label><textarea class="form-control" placeholder="What will be done to address this hazard..." onchange="updateCardField(${card.id},'controlOption', this.value)">${escapeHtml(card.controlOption)}</textarea></div>
+      </div>
+      <label class="form-label" style="display:block;margin-bottom:6px;">Photos</label>
+      <div class="photo-strip">${photoHtml}</div>
+      <button class="btn btn-secondary btn-sm" onclick="triggerPhotoCapture(${card.id})" style="margin-top:10px;">＋ Add Photo</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function renderPhotosTab(){
+  const grid = document.getElementById('photosTabGrid');
+  const empty = document.getElementById('photosEmptyState');
+  let allPhotos = [];
+  state.hazardCards.forEach((card, i) => {
+    card.photos.forEach(p => {
+      allPhotos.push({ photo:p, cardLabel: card.hazardLabel || ('Hazard ' + (i+1)) });
+    });
+  });
+  document.getElementById('cnt-photos').textContent = allPhotos.length;
+  if(allPhotos.length === 0){
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  grid.innerHTML = allPhotos.map(item => `
+    <div class="photos-tab-item">
+      <img src="${item.photo.dataUrl}">
+      <div class="meta">${escapeHtml(item.cardLabel)}<br>${item.photo.timestamp}</div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+function escapeAttr(str){
+  return (str || '').replace(/"/g, '&quot;');
+}
+
+// ---------- tabs ----------
+
+function switchTab(tab){
+  currentTab = tab;
+  document.getElementById('view-assessment').classList.toggle('hidden', tab !== 'assessment');
+  document.getElementById('view-photos').classList.toggle('hidden', tab !== 'photos');
+  document.getElementById('navAssessment').classList.toggle('active', tab === 'assessment');
+  document.getElementById('navPhotos').classList.toggle('active', tab === 'photos');
+}
+
+// ---------- state mutations ----------
+
+function updateHeaderField(field, value){
+  state.header[field] = value;
+  if(field === 'specialist') updateSidebarInspector();
+}
+
+function updateRadonField(field, value){
+  state.radon[field] = value;
+}
+
+function togglePrinciple(key, checked){
+  state.principles[key] = checked;
+  if(checked){
+    const [principleKey, subPart] = key.split('__');
+    const p = principleByKey(principleKey);
+    const label = subPart === 'general' ? p.name : p.subHazards[parseInt(subPart, 10)];
+    if(label && !state.hazardCards.some(c => c.principleKey === principleKey && c.hazardLabel === label)){
+      addHazardCard(principleKey, label);
+    }
+  }
+  renderPrinciplesList();
+}
+
+function addHazardCard(principleKey, prefillLabel){
+  const card = {
+    id: state.nextCardId++,
+    principleKey: principleKey || HH_PRINCIPLES[0].key,
+    hazardLabel: prefillLabel || '',
+    area: 'Interior',
+    location: '',
+    controlOption: '',
+    photos: []
+  };
+  state.hazardCards.push(card);
+  renderHazardCards();
+  renderPhotosTab();
+}
+
+function deleteHazardCard(id){
+  if(!confirm('Delete this hazard card and its photos?')) return;
+  state.hazardCards = state.hazardCards.filter(c => c.id !== id);
+  renderHazardCards();
+  renderPhotosTab();
+}
+
+function updateCardField(id, field, value){
+  const card = state.hazardCards.find(c => c.id === id);
+  if(card){
+    card[field] = value;
+    if(field === 'area' || field === 'principleKey') renderHazardCards();
+  }
+}
+
+function deletePhoto(cardId, photoId){
+  const card = state.hazardCards.find(c => c.id === cardId);
+  if(!card) return;
+  card.photos = card.photos.filter(p => p.id !== photoId);
+  renderHazardCards();
+  renderPhotosTab();
+}
+
+// ---------- photo capture (iOS-safe pattern, size-capped) ----------
+
+// Camera photos can come in at 10-12+ megapixels. Capping the long edge here keeps
+// every photo reasonably sized everywhere it's used (app, export, print) — an earlier
+// version without this cap could freeze the browser when generating a report with
+// several full-resolution photos embedded in it.
+const PHOTO_MAX_DIMENSION = 1600;
+const PHOTO_JPEG_QUALITY = 0.82;
+
+function processPhotoFile(file, maxDim, quality){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = function(e){
+      img.onload = function(){
+        let width = img.width;
+        let height = img.height;
+        if(width > maxDim || height > maxDim){
+          if(width > height){
+            height = Math.round(height * (maxDim / width));
+            width = maxDim;
+          } else {
+            width = Math.round(width * (maxDim / height));
+            height = maxDim;
+          }
+        }
+        const captureTime = new Date();
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const label = captureTime.toLocaleString();
+        const fontSize = Math.max(18, Math.floor(canvas.width / 40));
+        ctx.font = fontSize + 'px sans-serif';
+        const textWidth = ctx.measureText(label).width;
+        const pad = 10;
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(canvas.width - textWidth - pad*2, canvas.height - fontSize - pad*2, textWidth + pad*2, fontSize + pad*1.5);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(label, canvas.width - textWidth - pad, canvas.height - pad*1.2);
+        resolve({ dataUrl: canvas.toDataURL('image/jpeg', quality), timestamp: label });
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function triggerPhotoCapture(cardId){
+  pendingPhotoTargetCardId = cardId;
+  document.getElementById('cameraInput').click();
+}
+
+function handlePhotoCapture(event){
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if(!file || pendingPhotoTargetCardId === null) return;
+  const cardId = pendingPhotoTargetCardId;
+  processPhotoFile(file, PHOTO_MAX_DIMENSION, PHOTO_JPEG_QUALITY).then(function(result){
+    const card = state.hazardCards.find(c => c.id === cardId);
+    if(card){
+      card.photos.push({ id: state.nextPhotoId++, dataUrl: result.dataUrl, timestamp: result.timestamp });
+      renderHazardCards();
+      renderPhotosTab();
+    }
+  });
+}
+
+function triggerPropertyPhotoCapture(){
+  document.getElementById('propertyPhotoInput').click();
+}
+
+function handlePropertyPhotoCapture(event){
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if(!file) return;
+  processPhotoFile(file, PHOTO_MAX_DIMENSION, PHOTO_JPEG_QUALITY).then(function(result){
+    state.header.propertyPhoto = { dataUrl: result.dataUrl, timestamp: result.timestamp };
+    renderPropertyPhoto();
+  });
+}
+
+// ---------- new / export / import ----------
+
+function promptNewCase(){
+  showModal('Start a new case?', 'This will clear all current data. Make sure you have exported first if you need to keep it.', [
+    { label:'Cancel', class:'btn-secondary', action: closeModal },
+    { label:'Start New Case', class:'btn-primary', style:'background:var(--red);', action: () => { state = defaultState(); render(); closeModal(); } }
+  ]);
+}
+
+function showModal(title, body, actions){
+  const root = document.getElementById('modalRoot');
+  const actionsHtml = actions.map((a, i) => `<button class="btn ${a.class || ''}" style="${a.style||''}" onclick="window.__modalAction${i}()">${a.label}</button>`).join('');
+  root.innerHTML = `<div class="modal-overlay"><div class="modal"><div class="modal-header"><div class="modal-title">${title}</div></div><div class="modal-body">${body}</div><div class="modal-footer">${actionsHtml}</div></div></div>`;
+  actions.forEach((a, i) => { window['__modalAction' + i] = a.action; });
+}
+function closeModal(){
+  document.getElementById('modalRoot').innerHTML = '';
+}
+
+async function exportCase(){
+  const dataStr = JSON.stringify(state, null, 2);
+  const fileName = 'HHA_' + (state.header.address || 'case').replace(/[^a-z0-9]/gi, '_') + '_' + APP_VERSION + '.json';
+  const blob = new Blob([dataStr], { type:'application/json' });
+  if(navigator.share && navigator.canShare){
+    try{
+      const file = new File([blob], fileName, { type:'application/json' });
+      if(navigator.canShare({ files:[file] })){
+        await navigator.share({ files:[file], title: fileName });
+        return;
+      }
+    }catch(e){ /* fall through to download */ }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importCase(event){
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if(!file) return;
+  if(state.hazardCards.length > 0 || state.header.address){
+    showModal('Import over current data?', 'This will replace unsaved changes in the current case.', [
+      { label:'Cancel', class:'btn-secondary', action: closeModal },
+      { label:'Import', class:'btn-primary', style:'background:var(--red);', action: () => { doImport(file); closeModal(); } }
+    ]);
+  } else {
+    doImport(file);
+  }
+}
+
+function doImport(file){
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const imported = JSON.parse(e.target.result);
+      const fresh = defaultState();
+      state = Object.assign(fresh, imported);
+      state.header = Object.assign(fresh.header, imported.header || {});
+      state.radon = Object.assign(fresh.radon, imported.radon || {});
+      state.principles = imported.principles || {};
+      state.hazardCards = (imported.hazardCards || []).map(c => ({
+        id: c.id, principleKey: c.principleKey || HH_PRINCIPLES[0].key, hazardLabel: c.hazardLabel || '',
+        area: c.area === 'Exterior' ? 'Exterior' : 'Interior', location: c.location || '',
+        controlOption: c.controlOption || '', photos: c.photos || []
+      }));
+      render();
+    }catch(err){
+      alert('Could not read that file. Make sure it is an HHA export.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ---------- print report ----------
+
+// Real MHD logo, extracted directly from the department's own Healthy Homes Assessment
+// Report Word template (word/media/image2.png) — full quality, not a screenshot crop.
+const MHD_LOGO_DATA_URI = 'data:image/png;base64,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';
+
+const REPORT_PURPOSE_TEXT = "This Healthy Homes Summary Report provides an overview of non-lead health and safety hazards identified during the Healthy Homes Assessment conducted as part of lead hazard reduction activities. The findings are organized using HUD's Healthy Homes Principles and include simple recommendations and priority levels.";
+const REPORT_NOTE_TEXT = "This summary reflects what was observed in areas that were accessible on the date of the assessment. Conditions may change over time.";
+const REPORT_NEXT_STEPS = [
+  'The contractor will receive a Scope of Work based on this summary.',
+  'Healthy Homes remediation will occur alongside lead hazard reduction work.',
+  'A follow-up assessment will be completed after work is finished.',
+  'Owners and occupants will also receive the final Clearance Report.'
+];
+
+// Extra safety net on top of the capture-time cap: shrink photos further, specifically
+// for the printed report, since a report can bundle many photos into one HTML document.
+const PRINT_PHOTO_MAX_DIMENSION = 700;
+const PRINT_PHOTO_JPEG_QUALITY = 0.6;
+
+function resizeDataUrlForPrint(dataUrl){
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = function(){
+      let width = img.width;
+      let height = img.height;
+      if(width > PRINT_PHOTO_MAX_DIMENSION || height > PRINT_PHOTO_MAX_DIMENSION){
+        if(width > height){
+          height = Math.round(height * (PRINT_PHOTO_MAX_DIMENSION / width));
+          width = PRINT_PHOTO_MAX_DIMENSION;
+        } else {
+          width = Math.round(width * (PRINT_PHOTO_MAX_DIMENSION / height));
+          height = PRINT_PHOTO_MAX_DIMENSION;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', PRINT_PHOTO_JPEG_QUALITY));
+    };
+    img.onerror = function(){ resolve(dataUrl); };
+    img.src = dataUrl;
+  });
+}
+
+function printReport(){
+  const w = window.open('', '_blank');
+  if(!w){
+    alert('Please allow pop-ups to print the report.');
+    return;
+  }
+  w.document.write('<html><head><title>Preparing report…</title></head><body style="font-family:sans-serif;padding:40px;color:#555;">Preparing report — this may take a few seconds if there are several photos…</body></html>');
+  w.document.close();
+
+  const btn = document.getElementById('printReportBtn');
+  if(btn){ btn.disabled = true; btn.style.opacity = '0.6'; }
+
+  buildReportHtml().then(function(html){
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    setTimeout(function(){ w.print(); }, 400);
+  }).catch(function(err){
+    console.error(err);
+    try{
+      w.document.open();
+      w.document.write('<p style="font-family:sans-serif;padding:40px;color:#c0392b;">Something went wrong preparing the report. Please close this tab and try again.</p>');
+      w.document.close();
+    }catch(e){}
+  }).finally(function(){
+    if(btn){ btn.disabled = false; btn.style.opacity = ''; }
+  });
+}
+
+async function buildReportHtml(){
+  const h = state.header;
+
+  const interiorCards = state.hazardCards.filter(c => c.area === 'Interior');
+  const exteriorCards = state.hazardCards.filter(c => c.area === 'Exterior');
+
+  async function buildHazardTable(cards){
+    if(cards.length === 0){
+      return '<p style="font-size:12px;color:#64748b;font-style:italic;padding:10px 0;">None identified.</p>';
+    }
+    const rowsHtml = await Promise.all(cards.map(async (card) => {
+      const p = principleByKey(card.principleKey);
+      const printPhotos = await Promise.all(card.photos.map(ph => resizeDataUrlForPrint(ph.dataUrl)));
+      const photosHtml = printPhotos.length ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">' + printPhotos.map(src => `<img src="${src}" style="width:90px;height:90px;object-fit:cover;border:1px solid #cdd3db;border-radius:3px;">`).join('') + '</div>' : '';
+      return `<tr>
+        <td style="padding:8px;border:1px solid #cdd3db;font-size:11.5px;vertical-align:top;">${escapeHtml(p ? p.name : '—')}</td>
+        <td style="padding:8px;border:1px solid #cdd3db;font-size:11.5px;vertical-align:top;">${escapeHtml(card.hazardLabel) || '—'}${photosHtml}</td>
+        <td style="padding:8px;border:1px solid #cdd3db;font-size:11.5px;vertical-align:top;">${escapeHtml(card.location) || '—'}</td>
+        <td style="padding:8px;border:1px solid #cdd3db;font-size:11.5px;vertical-align:top;">${escapeHtml(card.controlOption) || '—'}</td>
+      </tr>`;
+    }));
+    return `<table style="width:100%;border-collapse:collapse;margin-bottom:6px;">
+      <tr style="background:#e2e7ed;">
+        <th style="padding:8px;border:1px solid #cdd3db;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#4a5568;text-align:left;">Principle</th>
+        <th style="padding:8px;border:1px solid #cdd3db;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#4a5568;text-align:left;">Hazard Identified</th>
+        <th style="padding:8px;border:1px solid #cdd3db;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#4a5568;text-align:left;">Location(s)</th>
+        <th style="padding:8px;border:1px solid #cdd3db;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#4a5568;text-align:left;">Control Option</th>
+      </tr>
+      ${rowsHtml.join('')}
+    </table>`;
+  }
+
+  const interiorTableHtml = await buildHazardTable(interiorCards);
+  const exteriorTableHtml = await buildHazardTable(exteriorCards);
+
+  const principlesReferenceHtml = HH_PRINCIPLES.map(p => `
+    <tr>
+      <td style="padding:8px;border:1px solid #cdd3db;font-size:11.5px;font-weight:700;vertical-align:top;white-space:nowrap;">${escapeHtml(p.name)}</td>
+      <td style="padding:8px;border:1px solid #cdd3db;font-size:11.5px;vertical-align:top;">${escapeHtml(p.description)}${p.subHazards.length ? '<br><span style="color:#64748b;font-style:italic;">' + p.subHazards.map(escapeHtml).join(' · ') + '</span>' : ''}</td>
+    </tr>
+  `).join('');
+
+  const propertyPhotoHtml = h.propertyPhoto
+    ? `<img src="${h.propertyPhoto.dataUrl}" style="width:100%;height:100%;object-fit:cover;">`
+    : '<span style="color:#9ca3af;font-size:12px;">No photo uploaded</span>';
+
+  const radonHtml = state.radon.tested
+    ? `<p style="font-size:12px;margin:0 0 4px;"><strong>Radon tested:</strong> Yes &nbsp;&nbsp; <strong>Lab Result:</strong> ${escapeHtml(state.radon.labResult) || '—'} pCi/L &nbsp;&nbsp; <strong>Result Date:</strong> ${escapeHtml(state.radon.resultDate) || '—'}</p>`
+    : `<p style="font-size:12px;margin:0;color:#64748b;font-style:italic;">Radon testing not recorded for this visit.</p>`;
+
+  const nextStepsHtml = REPORT_NEXT_STEPS.map(s => `<li style="margin-bottom:4px;">${escapeHtml(s)}</li>`).join('');
+
+  const today = new Date().toLocaleDateString();
+
+  const html = `
+    <html><head><title>Healthy Homes Assessment Report — ${escapeHtml(h.address) || 'Report'}</title>
+    <style>
+      @page{ margin:0.6in; }
+      body{font-family:Calibri,Arial,sans-serif;color:#1e293b;padding:24px;max-width:800px;margin:0 auto;}
+      .section-title{font-size:14px;font-weight:700;color:#1e2a5a;border-bottom:2px solid #1e2a5a;padding-bottom:4px;margin:22px 0 10px;}
+      .field-label{font-family:'Courier New',monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;}
+      .field-value{font-size:13px;font-weight:500;margin-bottom:8px;}
+    </style></head><body>
+
+    <div style="display:flex;align-items:center;gap:16px;border-bottom:2px solid #1e2a5a;padding-bottom:12px;margin-bottom:18px;">
+      <img src="${MHD_LOGO_DATA_URI}" style="height:52px;" alt="City of Milwaukee Health Department">
+      <div style="font-size:11px;line-height:1.5;color:#374151;">
+        <div style="font-weight:700;">City of Milwaukee &ndash; Health Department</div>
+        <div>Municipal Building | 841 North Broadway, Milwaukee, WI 53212</div>
+        <div>414-286-2165 &nbsp;|&nbsp; DHS Lead Company # 20210</div>
+      </div>
+    </div>
+
+    <h1 style="text-align:center;font-size:22px;font-weight:700;color:#1e2a5a;margin:0 0 20px;">Healthy Homes Assessment Report</h1>
+
+    <div style="display:flex;gap:24px;margin-bottom:18px;flex-wrap:wrap;">
+      <div style="flex:1 1 320px;min-width:280px;">
+        <div class="field-label">Performed On</div>
+        <div class="field-value">${escapeHtml(h.address) || '—'} at ${escapeHtml(h.timeOfVisit) || '—'} on ${escapeHtml(h.dateOfVisit) || '—'}</div>
+        <div class="field-label">For Site Located At</div>
+        <div class="field-value">${escapeHtml(h.address) || '—'}<br>${escapeHtml(h.city) || '—'}, ${escapeHtml(h.state) || '—'} ${escapeHtml(h.zip) || ''}</div>
+        <div class="field-label">Year of Construction</div>
+        <div class="field-value">${escapeHtml(h.yearBuilt) || '—'}</div>
+        <div class="field-label">Prepared For</div>
+        <div class="field-value">${escapeHtml(h.ownerName) || '—'}<br>${escapeHtml(h.ownerAddress) || ''}<br>${escapeHtml(h.ownerPhone) || ''}</div>
+        <div class="field-label">Healthy Homes Assessment and Report Completed By</div>
+        <div class="field-value">${escapeHtml(h.specialist) || '—'}<br>Healthy Homes Inspector &ndash; Lead Risk Assessor, DHS No. ${escapeHtml(h.specialistDhs) || '—'}</div>
+      </div>
+      <div style="flex:0 0 240px;">
+        <div style="width:240px;height:180px;border:1px solid #cdd3db;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f9fafb;">${propertyPhotoHtml}</div>
+      </div>
+    </div>
+
+    <div class="section-title">1. Purpose of This Report</div>
+    <p style="font-size:12.5px;line-height:1.6;margin-bottom:8px;">${REPORT_PURPOSE_TEXT}</p>
+    <p style="font-size:11px;line-height:1.5;color:#64748b;"><strong>Note:</strong> ${REPORT_NOTE_TEXT}</p>
+
+    <div class="section-title">2. Healthy Homes Principles Evaluated</div>
+    <p style="font-size:12px;margin-bottom:8px;">This assessment uses the eight Healthy Homes principles to help identify conditions in the home that may affect health and safety.</p>
+    <table style="width:100%;border-collapse:collapse;">${principlesReferenceHtml}</table>
+
+    <div class="section-title">3. Summary of Hazards and Hazard Control Options</div>
+    <p style="font-size:12px;font-weight:700;margin:10px 0 4px;">Interior Hazards</p>
+    ${interiorTableHtml}
+    <p style="font-size:12px;font-weight:700;margin:14px 0 4px;">Exterior Hazards</p>
+    ${exteriorTableHtml}
+    <p style="font-size:12px;font-weight:700;margin:14px 0 4px;">Radon Testing</p>
+    ${radonHtml}
+
+    <div class="section-title">4. Next Steps in the Process</div>
+    <ul style="font-size:12.5px;line-height:1.6;padding-left:20px;">${nextStepsHtml}</ul>
+
+    <div class="section-title">5. Acknowledgement &amp; Signatures</div>
+    <p style="font-size:12px;margin-bottom:24px;">Owner/Occupant Acknowledgement: I acknowledge receiving this Healthy Homes Summary Report.</p>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr>
+        <td style="width:50%;padding:0 20px 0 0;">
+          <div style="border-bottom:1px solid #1e293b;height:36px;"></div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Inspector Signature</div>
+          <div style="border-bottom:1px solid #1e293b;height:24px;margin-top:16px;width:60%;"></div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Date</div>
+        </td>
+        <td style="width:50%;padding:0 0 0 20px;">
+          <div style="border-bottom:1px solid #1e293b;height:36px;"></div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Owner/Occupant Signature</div>
+          <div style="border-bottom:1px solid #1e293b;height:24px;margin-top:16px;width:60%;"></div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Date</div>
+        </td>
+      </tr>
+    </table>
+
+    <p style="font-size:11px;color:#374151;margin-top:20px;"><strong>Attachments:</strong> Photos</p>
+
+    <p style="font-size:9px;color:#94a3b8;text-align:right;margin-top:24px;">Generated ${today} — HHA ${APP_VERSION}</p>
+
+    </body></html>
+  `;
+  return html;
+}
+
+render();
+</script>
+
+</body>
+</html>
